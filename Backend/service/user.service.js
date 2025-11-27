@@ -36,9 +36,17 @@ export const LoginService = async (body) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-    return { token };
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.onExpire = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
+    if (user.otp !== otp) {
+      throw new Error("Invalid OTP");
+    }
+    
+    if(user.id)
+    return { otp };
   } catch (error) {
     throw new Error({ error });
   }
 };
-
