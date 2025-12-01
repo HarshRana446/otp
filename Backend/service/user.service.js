@@ -65,3 +65,20 @@ export const verifyOtpService = async (body) => {
     throw new Error(error.message);
   }
 };
+
+export const resendOtpService = async (body) => {
+  try {
+    let { email } = body;
+    const user = await User.findOne({ email });
+    if(!user){
+      throw new Error("User not found");
+    }
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otp = otp;
+    user.onExpire = new Date(Date.now() + 5 * 60 * 1000);
+    await user.save();
+    return { otp };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};

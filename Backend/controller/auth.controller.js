@@ -31,7 +31,16 @@ export const verifyOtpContoller = async (req, res) => {
 
   try {
     const user = await Authservice.verifyOtpService(req.body);
-    res.status(200).json({ message: "Login successful", user });
+    res.status(200).json({ message: "Otp verified Login successful", user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const resendOtpContoller = async (req, res) => {
+  try {
+    const user = await Authservice.resendOtpService(req.body);
+    res.status(200).json({ message: "Otp resend successful", user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
