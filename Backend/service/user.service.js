@@ -48,7 +48,7 @@ export const verifyOtpService = async (body) => {
     if (!user) {
       throw new Error("User not found");
     }
-    if (!user.onExpire || user.onExpire < Date.now()) {
+    if (user.onExpire < Date.now()) {
       throw new Error("OTP expired");
     }
     if (user.otp !== otp) {
@@ -70,7 +70,7 @@ export const resendOtpService = async (body) => {
   try {
     let { email } = body;
     const user = await User.findOne({ email });
-    if(!user){
+    if (!user) {
       throw new Error("User not found");
     }
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
