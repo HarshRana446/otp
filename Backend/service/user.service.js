@@ -13,7 +13,7 @@ export const SignupService = async (body) => {
     const user = await User.create({ username, email, password: hashPassword });
     return { user };
   } catch (error) {
-    throw new Error({ error });
+    throw new Error(error.message);
   }
 };
 export const LoginService = async (body) => {
@@ -27,15 +27,7 @@ export const LoginService = async (body) => {
     if (!isPasswordValid) {
       throw new Error("Invalid password");
     }
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        username: user.username,
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
+
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.otp = otp;
     user.onExpire = new Date(Date.now() + 5 * 60 * 1000);
@@ -43,10 +35,33 @@ export const LoginService = async (body) => {
     if (user.otp !== otp) {
       throw new Error("Invalid OTP");
     }
-    
-    if(user.id)
-    return { otp };
+    if (user.id) return { otp };
   } catch (error) {
-    throw new Error({ error });
+    throw new Error(error.message);
+  }
+};
+
+export const verifyOtpService = async (body) => {
+  try {
+    let { email, otp } = body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      throw new Error("User not found");
+    }
+    if (!user.onExpire || user.onExpire < Date.now()) {
+      throw new Error("OTP expired");
+    }
+    if (user.otp !== otp) {
+      throw new Error("Invalid OTP");
+    }
+    user.otp = null;
+    user.onExpire = null;
+    await user.save();
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+    return { token };
+  } catch (error) {
+    throw new Error(error.message);
   }
 };
