@@ -1,32 +1,30 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Mail, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
+import axios from "axios";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
 
     try {
-      const res = await fetch("http://localhost:5000/v1/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
+      const res = await axios.post("http://localhost:5000/v1/auth/login", {
+        email: email,
+        password: password,
       });
-      const data = await res.json();
-      if (!res.ok) return alert(data.message);
+      console.log(res.data);
       localStorage.setItem("otp_email", email);
-      alert("Login successful. Please Enter OTP to continue.");
-      window.location.href = "/otp";
+      toast.success("Login successful. Please Enter OTP to continue.");
+      navigate("/otp", {state: email});
     } catch (error) {
-      console.error(error);
-    }
+      toast.error("Login failed. Please check your credentials.");}
   };
 
   return (

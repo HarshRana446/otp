@@ -1,5 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
+import axios from "axios";
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
@@ -12,6 +15,8 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
@@ -22,30 +27,24 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
     if (!agreeToTerms) {
-      alert("Please agree to the terms and conditions");
+      toast.error("Please agree to the terms and conditions");
       return;
     }
     try {
-      const res = await fetch("http://localhost:5000/v1/auth/signup", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          username: formData.fullName,
-          email: formData.email,
-          password: formData.password,
-        }),
+      const res = await axios.post("http://localhost:5000/v1/auth/signup", {
+        email: formData.email,
+        password: formData.password,
+        username: formData.fullName,
       });
-      const data = await res.json();
-      if (!res.ok) return alert(data.message);
-      alert("Account created successfully!");
-      window.location.href = "/";
+      console.log(res.data);
+      toast.success("Account created successfully!");
+      navigate("/");
     } catch (error) {
-      alert("User already exists");
-      throw error;
+      toast.error("User already exists");
     }
   };
 
@@ -92,7 +91,7 @@ export default function SignUpPage() {
                   value={formData.email}
                   onChange={handleInputChange}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition"
-                  placeholder="you@example.com" 
+                  placeholder="you@example.com"
                   required
                 />
               </div>

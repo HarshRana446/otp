@@ -27,7 +27,6 @@ export const LoginController = async (req, res) => {
 };
 
 export const verifyOtpContoller = async (req, res) => {
-  console.log(req.body);
 
   try {
     const user = await Authservice.verifyOtpService(req.body);

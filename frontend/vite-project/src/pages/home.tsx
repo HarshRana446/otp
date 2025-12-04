@@ -1,7 +1,7 @@
 const home = () => {
   return (
-    <div className="grid text-align-center place-items-center">
-      Lorem, ipsum dolor sit amet consectetur adipisicing elit. Explicabo velit pariatur consectetur sint rerum, nulla mollitia. Nesciunt vel inventore vero reprehenderit similique. Necessitatibus officia dolorum ipsum fugiat sed aut assumenda?
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-100">
+      <h1>Welcome to the Home Page</h1>
     </div>
   );
 };

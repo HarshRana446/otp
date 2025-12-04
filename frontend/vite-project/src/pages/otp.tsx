@@ -1,11 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { Mail, ArrowLeft, Shield, RefreshCw } from "lucide-react";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function OTPPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  console.log(location?.state);
 
   useEffect(() => {
     if (timer > 0) {
@@ -60,25 +67,19 @@ export default function OTPPage() {
     const otpCode = otp.join("");
     const email = localStorage.getItem("otp_email");
     if (!email) {
-      alert("Email not found");
-      return (window.location.href = "/");
+      toast.error("Email not found");
+      return navigate("/");
     }
     try {
-      const res = await fetch("http://localhost:5000/v1/auth/verify-otp", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          email,
-          otp: otpCode,
-        }),
+      const res = await axios.post("http://localhost:5000/v1/auth/verify-otp", {
+        otp: otpCode,
       });
-      const data = await res.json();
-      if (!res.ok) return alert(data.message);
+      console.log(res.data);
+      localStorage.setItem("token", res.data.token);
       localStorage.removeItem("otp_email");
-      window.location.href = "/home";
+      navigate("/home");
     } catch (error) {
-      alert("Verification Failed");
-      throw error;
+      toast.error("Verification Failed");
     }
   };
 
@@ -89,7 +90,7 @@ export default function OTPPage() {
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
       console.log("Resending OTP...");
-      alert("New OTP sent!");
+      toast.success("New OTP sent!");
     }
   };
 
@@ -104,7 +105,7 @@ export default function OTPPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <button
-            onClick={() => (window.location.href = "/")}
+            onClick={() => navigate("/")}
             className="flex items-center text-gray-600 hover:text-gray-800 mb-6 transition group"
           >
             <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
